@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <meta name="theme-color" content="#232f3e" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>AWS Certified Cloud Practitioner (CLF-C02) - Sınav Simülatörü</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=6" />
 </head>
 <body>
   <!-- TOP AWS CERTIFICATION HEADER -->
@@ -16,7 +14,7 @@
       <div class="aws-badge">AWS</div>
       <div class="brand-title">
         <h1>AWS Cloud Practitioner (CLF-C02)</h1>
-        <span id="headerSubText">CLF-C02 Practice Exam Platform • 15 PDF Test (719 Soru)</span>
+        <span id="headerSubText">15 PDF Test • 719 Soru</span>
       </div>
     </div>
 
@@ -32,8 +30,8 @@
         <span class="timer-value" id="timerValue">90:00</span>
       </div>
 
-      <button class="btn-header" id="btnBackDashboard">
-        ☰ <span class="hide-xs">Tüm </span>Testler
+      <button class="btn-header" id="btnBackDashboard" title="Tüm Testler Menüsüne Dön">
+        ☰ Testler
       </button>
     </div>
   </header>
@@ -68,40 +66,41 @@
     <!-- SPECIAL PRACTICE MODES -->
     <section class="special-modes">
       <div class="special-card">
-        <div>
+        <div class="special-card-info">
           <h3>🎲 Karışık Deneme Sınavı (50 Soru)</h3>
           <p>719 soru havuzundan rastgele seçilen 50 soru ile gerçek sınav provası</p>
         </div>
-        <button class="btn-primary" id="btnRandomExam" style="flex:0 0 auto;">Başlat</button>
+        <button class="btn-primary btn-compact" id="btnRandomExam">Başlat</button>
       </div>
 
       <div class="special-card">
-        <div>
+        <div class="special-card-info">
           <h3>❌ Yanlış Yaptıklarımı Çöz</h3>
           <p id="wrongCountLabel">0 yanlış soru birikti</p>
         </div>
-        <button class="btn-secondary" id="btnWrongReview">Tekrar Çöz</button>
+        <button class="btn-secondary btn-compact" id="btnWrongReview">Tekrar Çöz</button>
       </div>
 
       <div class="special-card">
-        <div>
+        <div class="special-card-info">
           <h3>🚩 İşaretlediğim Sorular (Flagged)</h3>
           <p id="flaggedCountLabel">0 işaretli (flagged) soru</p>
         </div>
-        <button class="btn-secondary" id="btnFlaggedReview">İncele</button>
+        <button class="btn-secondary btn-compact" id="btnFlaggedReview">İncele</button>
       </div>
     </section>
 
     <div class="section-heading">
       <span>📚 PDF Test Setleri (Test 1 – Test 15)</span>
-      <button class="btn-secondary" id="btnResetAll">Tüm İlerlemeyi Sıfırla</button>
+      <button class="btn-secondary btn-sm" id="btnResetAll">Tüm İlerlemeyi Sıfırla</button>
     </div>
 
     <section class="tests-grid" id="testsGrid"></section>
   </main>
 
-  <!-- EXAM VIEW (PEARSON VUE / AWS CONSOLE STYLE) -->
-  <section class="exam-Screen hidden" id="examView">
+  <!-- EXAM VIEW -->
+  <section class="exam-screen hidden" id="examView">
+    <!-- Subheader action bar -->
     <div class="exam-subheader">
       <div class="subheader-left">
         <span class="q-counter-badge" id="qCounterBadge">1 / 50</span>
@@ -109,16 +108,14 @@
         <span class="multi-badge hidden" id="multiBadge">⚠️ 2 Seçenek</span>
       </div>
       <div class="subheader-right">
-        <span class="kbd-hint">Kısayollar: [1-5 / A-E] Şık • [←/→] Geçiş • [F] Flag • [R] Sıfırla</span>
-        <button class="btn-flag" id="btnFlag">🏴 <span class="flag-text">Flag</span></button>
-        <button class="btn-mobile-nav" id="btnToggleNavDrawer" title="Soru Gezginini Aç">
-          🔢 Sorular
-        </button>
+        <button class="btn-tool" id="btnFlag" title="İnceleme için işaretle (Kısayol: F)">🏴 Flag</button>
+        <button class="btn-tool" id="btnRetryQuestion" title="Bu sorudaki seçimi sıfırla (Kısayol: R)">↺ Sıfırla</button>
+        <button class="btn-tool" id="btnRevealAnswer" title="Doğru cevabı göster">👁 Cevap</button>
       </div>
     </div>
 
     <div class="exam-workspace">
-      <!-- LEFT/MAIN QUESTION AREA -->
+      <!-- MAIN QUESTION AREA -->
       <div class="question-pane" id="questionPane">
         <div class="question-card">
           <div class="instruction-note hidden" id="instructionNote"></div>
@@ -131,16 +128,14 @@
       <!-- MOBILE DRAWER BACKDROP -->
       <div class="nav-drawer-backdrop hidden" id="navDrawerBackdrop"></div>
 
-      <!-- RIGHT SIDEBAR / MOBILE BOTTOM DRAWER: 1-50 QUESTION NAVIGATOR -->
+      <!-- QUESTION NAVIGATOR (Right Sidebar on Desktop / Modal Sheet on Mobile) -->
       <aside class="navigator-sidebar" id="navigatorSidebar">
         <div class="nav-header">
-          <h3>
-            <span>Soru Gezgini</span>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span id="navProgressText" style="font-size:12px; color:var(--aws-muted); font-weight:600;">0 / 50</span>
-              <button class="btn-close-drawer" id="btnCloseNavDrawer" aria-label="Kapat">✕</button>
-            </div>
-          </h3>
+          <div class="nav-header-top">
+            <span class="nav-title">Soru Gezgini</span>
+            <span class="nav-progress" id="navProgressText">0 / 50 Tamamlandı</span>
+            <button class="btn-close-drawer" id="btnCloseNavDrawer" type="button" aria-label="Kapat">✕ Kapat</button>
+          </div>
           <div class="nav-filters">
             <button class="filter-chip active" data-filter="all">Tümü</button>
             <button class="filter-chip" data-filter="unanswered">Boşlar</button>
@@ -155,46 +150,39 @@
 
         <div class="nav-legend">
           <div class="legend-item">
-            <span class="legend-swatch" style="background:var(--correct-bg); border-color:var(--correct-green);"></span>
+            <span class="legend-swatch swatch-correct"></span>
             <span>Doğru (Yeşil)</span>
           </div>
           <div class="legend-item">
-            <span class="legend-swatch" style="background:var(--wrong-bg); border-color:var(--wrong-red);"></span>
+            <span class="legend-swatch swatch-wrong"></span>
             <span>Yanlış (Kırmızı)</span>
           </div>
           <div class="legend-item">
-            <span class="legend-swatch" style="background:#fff;"></span>
-            <span>Cevaplanmadı</span>
+            <span class="legend-swatch swatch-empty"></span>
+            <span>Boş</span>
           </div>
           <div class="legend-item">
-            <span class="legend-swatch" style="background:var(--flag-amber); border-radius:50%; width:8px; height:8px;"></span>
-            <span>Flag (İncele)</span>
+            <span class="legend-swatch swatch-flag"></span>
+            <span>Flag</span>
           </div>
         </div>
       </aside>
     </div>
 
-    <!-- BOTTOM PEARSON VUE NAVIGATION BAR -->
+    <!-- BOTTOM NAVIGATION BAR -->
     <footer class="exam-footer">
-      <div class="footer-left">
-        <button class="btn-nav" id="btnRetryQuestion" title="Bu sorudaki seçimi temizle (Kısayol: R)">
-          ↺ <span class="btn-label-desktop">Soruyu Sıfırla</span><span class="btn-label-mobile">Sıfırla</span>
-        </button>
-        <button class="btn-nav" id="btnRevealAnswer" title="Doğru cevabı yeşil olarak göster">
-          👁 <span class="btn-label-desktop">Cevabı Göster</span><span class="btn-label-mobile">Cevap</span>
-        </button>
-      </div>
+      <button class="btn-nav" id="btnPrev">← Önceki</button>
 
       <div class="footer-center">
-        <button class="btn-nav" id="btnFinishExam">
-          🏁 <span class="btn-label-desktop">Sınav Özeti & Sonuç</span><span class="btn-label-mobile">Bitir</span>
+        <button class="btn-nav btn-grid-toggle" id="btnToggleNavDrawer" type="button">
+          🔢 <span id="footerCounterText">1 / 50</span>
+        </button>
+        <button class="btn-nav btn-finish" id="btnFinishExam" type="button">
+          🏁 Bitir
         </button>
       </div>
 
-      <div class="footer-right">
-        <button class="btn-nav" id="btnPrev">← <span class="btn-label-desktop">Previous (Önceki)</span><span class="btn-label-mobile">Önceki</span></button>
-        <button class="btn-nav primary" id="btnNext"><span class="btn-label-desktop">Next (Sonraki)</span><span class="btn-label-mobile">Sonraki</span> →</button>
-      </div>
+      <button class="btn-nav primary" id="btnNext">Sonraki →</button>
     </footer>
   </section>
 
@@ -235,7 +223,7 @@
     </div>
   </div>
 
-  <script src="questions.js"></script>
-  <script src="app.js"></script>
+  <script src="questions.js?v=6"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
