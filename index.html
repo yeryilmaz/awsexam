@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AWS Certified Cloud Practitioner (CLF-C02) - Sınav Simülatörü</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- TOP AWS CERTIFICATION HEADER -->
+  <header class="aws-header">
+    <div class="brand-area" id="brandHome" title="Ana Menüye Dön">
+      <div class="aws-badge">AWS</div>
+      <div class="brand-title">
+        <h1>AWS Certified Cloud Practitioner (CLF-C02)</h1>
+        <span id="headerSubText">CLF-C02 Practice Exam Platform • 15 PDF Test (719 Soru)</span>
+      </div>
+    </div>
+
+    <div class="header-controls hidden" id="headerExamControls">
+      <div class="live-stats-pill" title="Test içi anlık skor">
+        <span class="stat-correct" id="liveCorrect">✓ 0</span>
+        <span class="stat-wrong" id="liveWrong">✗ 0</span>
+        <span class="stat-pct" id="livePct">%0</span>
+      </div>
+
+      <div class="timer-box" id="timerBox" title="Süreyi duraklatmak / başlatmak için tıklayın">
+        <span class="timer-label">⏱ Time Remaining:</span>
+        <span class="timer-value" id="timerValue">90:00</span>
+      </div>
+
+      <button class="btn-header" id="btnBackDashboard">
+        ☰ Tüm Testler (15)
+      </button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD VIEW (15 TESTS + SPECIAL MODES) -->
+  <main class="dashboard-container" id="dashboardView">
+    <section class="hero-banner">
+      <div class="hero-left">
+        <h2>AWS Cloud Practitioner (CLF-C02) Sınav Hazırlık Platformu</h2>
+        <p>
+          Paylaştığınız 15 PDF'teki toplam <strong>719 gerçek sınav sorusu</strong> her biri 50 soruluk 15 ayrı teste dönüştürüldü.
+          Herhangi bir şıkka tıkladığınızda doğru ise <strong>anında yeşil</strong>, yanlış ise <strong>kırmızı</strong> olarak gösterilir.
+          Tüm ilerlemeniz tarayıcınıza otomatik kaydedilir.
+        </p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat-card">
+          <span class="num" id="heroTotalAnswered">0 / 719</span>
+          <span class="lbl">Çözülen Soru</span>
+        </div>
+        <div class="hero-stat-card">
+          <span class="num" id="heroTotalCorrect">0</span>
+          <span class="lbl">Toplam Doğru</span>
+        </div>
+        <div class="hero-stat-card">
+          <span class="num" id="heroTotalScore">%0</span>
+          <span class="lbl">Genel Başarı</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPECIAL PRACTICE MODES -->
+    <section class="special-modes">
+      <div class="special-card">
+        <div>
+          <h3>🎲 Karışık Deneme Sınavı (50 Soru)</h3>
+          <p>719 soru havuzundan rastgele seçilen 50 soru ile gerçek sınav provası</p>
+        </div>
+        <button class="btn-primary" id="btnRandomExam" style="flex:0 0 auto;">Başlat</button>
+      </div>
+
+      <div class="special-card">
+        <div>
+          <h3>❌ Yanlış Yaptıklarımı Çöz</h3>
+          <p id="wrongCountLabel">0 yanlış soru birikti</p>
+        </div>
+        <button class="btn-secondary" id="btnWrongReview">Tekrar Çöz</button>
+      </div>
+
+      <div class="special-card">
+        <div>
+          <h3>🚩 İşaretlediğim Sorular (Flagged)</h3>
+          <p id="flaggedCountLabel">0 işaretli (flagged) soru</p>
+        </div>
+        <button class="btn-secondary" id="btnFlaggedReview">İncele</button>
+      </div>
+    </section>
+
+    <div class="section-heading">
+      <span>📚 PDF Test Setleri (Test 1 – Test 15)</span>
+      <button class="btn-secondary" id="btnResetAll">Tüm İlerlemeyi Sıfırla</button>
+    </div>
+
+    <section class="tests-grid" id="testsGrid"></section>
+  </main>
+
+  <!-- EXAM VIEW (PEARSON VUE / AWS CONSOLE STYLE) -->
+  <section class="exam-Screen hidden" id="examView">
+    <div class="exam-subheader">
+      <div class="subheader-left">
+        <span class="q-counter-badge" id="qCounterBadge">Question 1 of 50</span>
+        <span class="q-global-id" id="qGlobalId">Soru #1 (PDF 1)</span>
+        <span class="multi-badge hidden" id="multiBadge">⚠️ Choose 2 Options</span>
+      </div>
+      <div class="subheader-right">
+        <span class="kbd-hint">Kısayollar: [1-5 / A-E] Şık Seç • [←/→] Önceki/Sonraki • [F] Flag • [R] Sıfırla</span>
+        <button class="btn-flag" id="btnFlag">🏴 İnceleme İçin İşaretle (Flag)</button>
+      </div>
+    </div>
+
+    <div class="exam-workspace">
+      <!-- LEFT/MAIN QUESTION AREA -->
+      <div class="question-pane">
+        <div class="question-card">
+          <div class="instruction-note hidden" id="instructionNote"></div>
+          <div class="question-stem" id="questionStem"></div>
+          <div class="options-list" id="optionsList"></div>
+          <div class="feedback-box hidden" id="feedbackBox"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR: 1-50 QUESTION NAVIGATOR -->
+      <aside class="navigator-sidebar">
+        <div class="nav-header">
+          <h3>
+            <span>Soru Gezgini</span>
+            <span id="navProgressText" style="font-size:12px; color:var(--aws-muted); font-weight:600;">0 / 50</span>
+          </h3>
+          <div class="nav-filters">
+            <button class="filter-chip active" data-filter="all">Tümü</button>
+            <button class="filter-chip" data-filter="unanswered">Boşlar</button>
+            <button class="filter-chip" data-filter="wrong">Yanlışlar</button>
+            <button class="filter-chip" data-filter="flagged">🚩 Flag</button>
+          </div>
+        </div>
+
+        <div class="nav-grid-scroll">
+          <div class="nav-grid" id="navGrid"></div>
+        </div>
+
+        <div class="nav-legend">
+          <div class="legend-item">
+            <span class="legend-swatch" style="background:var(--correct-bg); border-color:var(--correct-green);"></span>
+            <span>Doğru (Yeşil)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background:var(--wrong-bg); border-color:var(--wrong-red);"></span>
+            <span>Yanlış (Kırmızı)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background:#fff;"></span>
+            <span>Cevaplanmadı</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background:var(--flag-amber); border-radius:50%; width:8px; height:8px;"></span>
+            <span>Flag (İncele)</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- BOTTOM PEARSON VUE NAVIGATION BAR -->
+    <footer class="exam-footer">
+      <div class="footer-left">
+        <button class="btn-nav" id="btnRetryQuestion" title="Bu sorudaki seçimi temizle (Kısayol: R)">
+          ↺ Soruyu Sıfırla
+        </button>
+        <button class="btn-nav" id="btnRevealAnswer" title="Doğru cevabı yeşil olarak göster">
+          👁 Cevabı Göster
+        </button>
+      </div>
+
+      <div class="footer-center">
+        <button class="btn-nav" id="btnFinishExam">
+          🏁 Sınav Özeti & Sonuç
+        </button>
+      </div>
+
+      <div class="footer-right">
+        <button class="btn-nav" id="btnPrev">← Previous (Önceki)</button>
+        <button class="btn-nav primary" id="btnNext">Next (Sonraki) →</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- RESULTS / SUMMARY MODAL -->
+  <div class="modal-backdrop hidden" id="resultsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">Test Sonucu</h3>
+        <button class="btn-header" id="btnCloseModal" style="padding:4px 10px;">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="score-circle-wrap">
+          <span class="pass-badge pass" id="modalPassBadge">PASS</span>
+          <div class="scaled-score" id="modalScaledScore">850 / 1000</div>
+          <div class="scaled-sub" id="modalPctText">Başarı Oranı: %85</div>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-box">
+            <span class="val" id="modalCorrectVal" style="color:var(--correct-green)">0</span>
+            <span class="lbl">Doğru (Yeşil)</span>
+          </div>
+          <div class="result-box">
+            <span class="val" id="modalWrongVal" style="color:var(--wrong-red)">0</span>
+            <span class="lbl">Yanlış (Kırmızı)</span>
+          </div>
+          <div class="result-box">
+            <span class="val" id="modalEmptyVal" style="color:var(--aws-muted)">0</span>
+            <span class="lbl">Boş Bırakılan</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-primary" id="btnModalPracticeWrong">❌ Sadece Yanlışlarımı Tekrar Çöz</button>
+          <button class="btn-secondary" id="btnModalBackDashboard" style="flex:1;">Ana Menüye Dön</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
