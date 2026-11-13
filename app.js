@@ -93,6 +93,11 @@
   const qGlobalId = document.getElementById("qGlobalId");
   const multiBadge = document.getElementById("multiBadge");
   const btnFlag = document.getElementById("btnFlag");
+  const btnToggleNavDrawer = document.getElementById("btnToggleNavDrawer");
+  const btnCloseNavDrawer = document.getElementById("btnCloseNavDrawer");
+  const navDrawerBackdrop = document.getElementById("navDrawerBackdrop");
+  const navigatorSidebar = document.getElementById("navigatorSidebar");
+  const questionPane = document.getElementById("questionPane");
   const questionStem = document.getElementById("questionStem");
   const instructionNote = document.getElementById("instructionNote");
   const optionsList = document.getElementById("optionsList");
@@ -108,9 +113,25 @@
 
   const resultsModal = document.getElementById("resultsModal");
 
+  function openMobileDrawer() {
+    navigatorSidebar.classList.add("open");
+    navDrawerBackdrop.classList.remove("hidden");
+  }
+
+  function closeMobileDrawer() {
+    navigatorSidebar.classList.remove("open");
+    navDrawerBackdrop.classList.add("hidden");
+  }
+
+  function scrollQuestionToTop() {
+    if (questionPane) questionPane.scrollTop = 0;
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
   // Render Dashboard
   function renderDashboard() {
     stopTimer();
+    closeMobileDrawer();
     activeSession = null;
     dashboardView.classList.remove("hidden");
     examView.classList.add("hidden");
@@ -209,7 +230,6 @@
     if (!resetPosition && typeof state.lastIndex[key] === "number") {
       startIdx = Math.min(Math.max(0, state.lastIndex[key]), questions.length - 1);
     } else {
-      // Find first unanswered question if any
       const firstUnanswered = questions.findIndex((q) => getQuestionStatus(q) === "unanswered");
       if (firstUnanswered !== -1) startIdx = firstUnanswered;
     }
@@ -221,7 +241,7 @@
       questions,
       currentIndex: startIdx,
       filter: "all",
-      timerSeconds: 90 * 60, // 90 mins standard AWS CLF-C02 duration
+      timerSeconds: 90 * 60,
       timerRunning: true,
     };
 
@@ -230,13 +250,13 @@
     headerExamControls.classList.remove("hidden");
     headerSubText.textContent = `${title} • ${subtitle}`;
 
-    // Reset filter chips UI
     document.querySelectorAll(".filter-chip").forEach((ch) => {
       ch.classList.toggle("active", ch.dataset.filter === "all");
     });
 
     startTimer();
     renderCurrentQuestion();
+    scrollQuestionToTop();
   }
 
   function startTimer() {
@@ -290,13 +310,13 @@
     livePct.textContent = `%${pct}`;
 
     // Subheader info
-    qCounterBadge.textContent = `Question ${currentIndex + 1} of ${questions.length}`;
-    qGlobalId.textContent = `Soru #${q.id} (PDF ${q.pdf} • Topic: Exam A)`;
+    qCounterBadge.textContent = `${currentIndex + 1} / ${questions.length}`;
+    qGlobalId.textContent = `Soru #${q.id} (PDF ${q.pdf})`;
 
     const reqCount = q.answer.length;
     if (reqCount > 1) {
       multiBadge.classList.remove("hidden");
-      multiBadge.textContent = `⚠️ Choose ${reqCount} Options (${reqCount} Seçenek İşaretleyin)`;
+      multiBadge.textContent = `⚠️ ${reqCount} Seçenek`;
       instructionNote.classList.remove("hidden");
       instructionNote.textContent = `Bu soruda ${reqCount} doğru cevap bulunmaktadır. Seçeneklere tıkladığınızda doğruysa yeşil, yanlışsa kırmızı olarak anında gösterilir.`;
     } else {
@@ -306,7 +326,7 @@
 
     const isFlagged = !!state.flagged[q.id];
     btnFlag.classList.toggle("active", isFlagged);
-    btnFlag.innerHTML = isFlagged ? "🚩 İşaretlendi (Flagged)" : "🏴 İnceleme İçin İşaretle (Flag)";
+    btnFlag.innerHTML = isFlagged ? "🚩 Flagged" : "🏴 Flag";
 
     // Question stem
     questionStem.textContent = q.question;
@@ -330,27 +350,26 @@
 
       if (isSelected) {
         if (isCorrectOption) {
-          // Clicked a correct answer -> GREEN!
           item.classList.add("is-correct");
           indicatorSymbol = "✓";
           badgeHtml = `<span class="option-status-badge">✓ Doğru Cevap</span>`;
         } else {
-          // Clicked a wrong answer -> RED!
           item.classList.add("is-wrong");
           indicatorSymbol = "✗";
           badgeHtml = `<span class="option-status-badge">✗ Yanlış Seçim</span>`;
         }
       } else if (finishedSelecting && isCorrectOption) {
-        // Reveal the right answer in GREEN when user picked a wrong option or finished selecting
         item.classList.add("is-correct");
         indicatorSymbol = "✓";
         badgeHtml = `<span class="option-status-badge">✓ Doğru Cevap</span>`;
       }
 
       item.innerHTML = `
-        <div class="option-indicator ${reqCount > 1 ? "checkbox" : ""}">${indicatorSymbol}</div>
-        <div class="option-key">${opt.key}.</div>
-        <div class="option-text">${escapeHtml(opt.text)}</div>
+        <div class="option-main-row">
+          <div class="option-indicator ${reqCount > 1 ? "checkbox" : ""}">${indicatorSymbol}</div>
+          <div class="option-key">${opt.key}.</div>
+          <div class="option-text">${escapeHtml(opt.text)}</div>
+        </div>
         ${badgeHtml}
       `;
 
@@ -396,16 +415,12 @@
     let current = state.answers[q.id] ? [...state.answers[q.id]] : [];
 
     if (reqCount === 1) {
-      // Single choice: clicking any option selects it immediately and shows green/red
       current = [key];
     } else {
-      // Multi-choice (Choose 2):
       if (current.includes(key)) {
-        // Deselect if clicked again
         current = current.filter((k) => k !== key);
       } else {
         if (current.length >= reqCount) {
-          // If already picked 2, start fresh with the newly clicked option
           current = [key];
           delete state.revealed[q.id];
         } else {
@@ -451,7 +466,9 @@
       `;
       cell.addEventListener("click", () => {
         activeSession.currentIndex = idx;
+        closeMobileDrawer();
         renderCurrentQuestion();
+        scrollQuestionToTop();
       });
       navGrid.appendChild(cell);
     });
@@ -459,6 +476,7 @@
 
   function showResultsModal() {
     if (!activeSession) return;
+    closeMobileDrawer();
     const { questions, title } = activeSession;
     let cCount = 0;
     let wCount = 0;
@@ -473,7 +491,6 @@
 
     const total = questions.length;
     const rawPct = total > 0 ? Math.round((cCount / total) * 100) : 0;
-    // AWS CLF-C02 uses a 100-1000 scale with 700 passing
     const scaled = Math.max(100, Math.round(100 + (cCount / total) * 900));
     const passed = rawPct >= 70;
 
@@ -505,6 +522,16 @@
   // Event Listeners
   document.getElementById("brandHome").addEventListener("click", renderDashboard);
   btnBackDashboard.addEventListener("click", renderDashboard);
+
+  btnToggleNavDrawer.addEventListener("click", () => {
+    if (navigatorSidebar.classList.contains("open")) {
+      closeMobileDrawer();
+    } else {
+      openMobileDrawer();
+    }
+  });
+  btnCloseNavDrawer.addEventListener("click", closeMobileDrawer);
+  navDrawerBackdrop.addEventListener("click", closeMobileDrawer);
 
   timerBox.addEventListener("click", () => {
     if (!activeSession) return;
@@ -548,7 +575,6 @@
   document.getElementById("btnRandomExam").addEventListener("click", () => {
     const allQs = Object.values(questionById);
     const shuffled = [...allQs].sort(() => Math.random() - 0.5).slice(0, 50);
-    // Clear previous answers on those or keep? Let's keep or let user reset
     startSession({
       key: "random_50",
       title: "Karışık Deneme Sınavı",
@@ -602,6 +628,7 @@
     if (activeSession && activeSession.currentIndex > 0) {
       activeSession.currentIndex--;
       renderCurrentQuestion();
+      scrollQuestionToTop();
     }
   });
 
@@ -609,6 +636,7 @@
     if (activeSession && activeSession.currentIndex < activeSession.questions.length - 1) {
       activeSession.currentIndex++;
       renderCurrentQuestion();
+      scrollQuestionToTop();
     }
   });
 
@@ -681,12 +709,14 @@
       if (activeSession.currentIndex < activeSession.questions.length - 1) {
         activeSession.currentIndex++;
         renderCurrentQuestion();
+        scrollQuestionToTop();
       }
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
       if (activeSession.currentIndex > 0) {
         activeSession.currentIndex--;
         renderCurrentQuestion();
+        scrollQuestionToTop();
       }
     } else if (e.key.toLowerCase() === "f") {
       e.preventDefault();
@@ -723,4 +753,3 @@
   // Initialize
   renderDashboard();
 })();
-

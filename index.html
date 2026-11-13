@@ -2,7 +2,10 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#232f3e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>AWS Certified Cloud Practitioner (CLF-C02) - Sınav Simülatörü</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -12,7 +15,7 @@
     <div class="brand-area" id="brandHome" title="Ana Menüye Dön">
       <div class="aws-badge">AWS</div>
       <div class="brand-title">
-        <h1>AWS Certified Cloud Practitioner (CLF-C02)</h1>
+        <h1>AWS Cloud Practitioner (CLF-C02)</h1>
         <span id="headerSubText">CLF-C02 Practice Exam Platform • 15 PDF Test (719 Soru)</span>
       </div>
     </div>
@@ -25,12 +28,12 @@
       </div>
 
       <div class="timer-box" id="timerBox" title="Süreyi duraklatmak / başlatmak için tıklayın">
-        <span class="timer-label">⏱ Time Remaining:</span>
+        <span class="timer-label">⏱</span>
         <span class="timer-value" id="timerValue">90:00</span>
       </div>
 
       <button class="btn-header" id="btnBackDashboard">
-        ☰ Tüm Testler (15)
+        ☰ <span class="hide-xs">Tüm </span>Testler
       </button>
     </div>
   </header>
@@ -43,21 +46,21 @@
         <p>
           Paylaştığınız 15 PDF'teki toplam <strong>719 gerçek sınav sorusu</strong> her biri 50 soruluk 15 ayrı teste dönüştürüldü.
           Herhangi bir şıkka tıkladığınızda doğru ise <strong>anında yeşil</strong>, yanlış ise <strong>kırmızı</strong> olarak gösterilir.
-          Tüm ilerlemeniz tarayıcınıza otomatik kaydedilir.
+          Tüm ilerlemeniz cihazınıza otomatik kaydedilir.
         </p>
       </div>
       <div class="hero-stats">
         <div class="hero-stat-card">
           <span class="num" id="heroTotalAnswered">0 / 719</span>
-          <span class="lbl">Çözülen Soru</span>
+          <span class="lbl">Çözülen</span>
         </div>
         <div class="hero-stat-card">
           <span class="num" id="heroTotalCorrect">0</span>
-          <span class="lbl">Toplam Doğru</span>
+          <span class="lbl">Doğru</span>
         </div>
         <div class="hero-stat-card">
           <span class="num" id="heroTotalScore">%0</span>
-          <span class="lbl">Genel Başarı</span>
+          <span class="lbl">Başarı</span>
         </div>
       </div>
     </section>
@@ -101,19 +104,22 @@
   <section class="exam-Screen hidden" id="examView">
     <div class="exam-subheader">
       <div class="subheader-left">
-        <span class="q-counter-badge" id="qCounterBadge">Question 1 of 50</span>
+        <span class="q-counter-badge" id="qCounterBadge">1 / 50</span>
         <span class="q-global-id" id="qGlobalId">Soru #1 (PDF 1)</span>
-        <span class="multi-badge hidden" id="multiBadge">⚠️ Choose 2 Options</span>
+        <span class="multi-badge hidden" id="multiBadge">⚠️ 2 Seçenek</span>
       </div>
       <div class="subheader-right">
-        <span class="kbd-hint">Kısayollar: [1-5 / A-E] Şık Seç • [←/→] Önceki/Sonraki • [F] Flag • [R] Sıfırla</span>
-        <button class="btn-flag" id="btnFlag">🏴 İnceleme İçin İşaretle (Flag)</button>
+        <span class="kbd-hint">Kısayollar: [1-5 / A-E] Şık • [←/→] Geçiş • [F] Flag • [R] Sıfırla</span>
+        <button class="btn-flag" id="btnFlag">🏴 <span class="flag-text">Flag</span></button>
+        <button class="btn-mobile-nav" id="btnToggleNavDrawer" title="Soru Gezginini Aç">
+          🔢 Sorular
+        </button>
       </div>
     </div>
 
     <div class="exam-workspace">
       <!-- LEFT/MAIN QUESTION AREA -->
-      <div class="question-pane">
+      <div class="question-pane" id="questionPane">
         <div class="question-card">
           <div class="instruction-note hidden" id="instructionNote"></div>
           <div class="question-stem" id="questionStem"></div>
@@ -122,12 +128,18 @@
         </div>
       </div>
 
-      <!-- RIGHT SIDEBAR: 1-50 QUESTION NAVIGATOR -->
-      <aside class="navigator-sidebar">
+      <!-- MOBILE DRAWER BACKDROP -->
+      <div class="nav-drawer-backdrop hidden" id="navDrawerBackdrop"></div>
+
+      <!-- RIGHT SIDEBAR / MOBILE BOTTOM DRAWER: 1-50 QUESTION NAVIGATOR -->
+      <aside class="navigator-sidebar" id="navigatorSidebar">
         <div class="nav-header">
           <h3>
             <span>Soru Gezgini</span>
-            <span id="navProgressText" style="font-size:12px; color:var(--aws-muted); font-weight:600;">0 / 50</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span id="navProgressText" style="font-size:12px; color:var(--aws-muted); font-weight:600;">0 / 50</span>
+              <button class="btn-close-drawer" id="btnCloseNavDrawer" aria-label="Kapat">✕</button>
+            </div>
           </h3>
           <div class="nav-filters">
             <button class="filter-chip active" data-filter="all">Tümü</button>
@@ -166,22 +178,22 @@
     <footer class="exam-footer">
       <div class="footer-left">
         <button class="btn-nav" id="btnRetryQuestion" title="Bu sorudaki seçimi temizle (Kısayol: R)">
-          ↺ Soruyu Sıfırla
+          ↺ <span class="btn-label-desktop">Soruyu Sıfırla</span><span class="btn-label-mobile">Sıfırla</span>
         </button>
         <button class="btn-nav" id="btnRevealAnswer" title="Doğru cevabı yeşil olarak göster">
-          👁 Cevabı Göster
+          👁 <span class="btn-label-desktop">Cevabı Göster</span><span class="btn-label-mobile">Cevap</span>
         </button>
       </div>
 
       <div class="footer-center">
         <button class="btn-nav" id="btnFinishExam">
-          🏁 Sınav Özeti & Sonuç
+          🏁 <span class="btn-label-desktop">Sınav Özeti & Sonuç</span><span class="btn-label-mobile">Bitir</span>
         </button>
       </div>
 
       <div class="footer-right">
-        <button class="btn-nav" id="btnPrev">← Previous (Önceki)</button>
-        <button class="btn-nav primary" id="btnNext">Next (Sonraki) →</button>
+        <button class="btn-nav" id="btnPrev">← <span class="btn-label-desktop">Previous (Önceki)</span><span class="btn-label-mobile">Önceki</span></button>
+        <button class="btn-nav primary" id="btnNext"><span class="btn-label-desktop">Next (Sonraki)</span><span class="btn-label-mobile">Sonraki</span> →</button>
       </div>
     </footer>
   </section>
@@ -227,4 +239,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
