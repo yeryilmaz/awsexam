@@ -10,15 +10,8 @@
     });
   });
 
-  // Persistent state:
-  // answers: { [questionId]: string[] }  (user's clicked option keys)
-  // revealed: { [questionId]: boolean }
-  // flagged: { [questionId]: boolean }
-  // lastIndex: { [testKey]: number }
   let state = loadState();
-
-  // Active exam session state
-  let activeSession = null; // { key, title, subtitle, questions, currentIndex, filter, timerSeconds, timerRunning }
+  let activeSession = null;
   let timerInterval = null;
 
   function loadState() {
@@ -47,7 +40,6 @@
     }
   }
 
-  // Evaluate whether a question is answered & whether it is completely correct
   function getQuestionStatus(q) {
     const sel = state.answers[q.id] || [];
     const rev = !!state.revealed[q.id];
@@ -90,6 +82,7 @@
 
   // Exam view elements
   const qCounterBadge = document.getElementById("qCounterBadge");
+  const footerCounterText = document.getElementById("footerCounterText");
   const qGlobalId = document.getElementById("qGlobalId");
   const multiBadge = document.getElementById("multiBadge");
   const btnFlag = document.getElementById("btnFlag");
@@ -136,9 +129,8 @@
     dashboardView.classList.remove("hidden");
     examView.classList.add("hidden");
     headerExamControls.classList.add("hidden");
-    headerSubText.textContent = "CLF-C02 Practice Exam Platform • 15 PDF Test (719 Soru)";
+    headerSubText.textContent = "15 PDF Test • 719 Soru";
 
-    // Calculate global stats
     let totalAnswered = 0;
     let totalCorrect = 0;
     let totalWrong = 0;
@@ -165,7 +157,6 @@
     wrongCountLabel.textContent = `${totalWrong} yanlış soru birikti`;
     flaggedCountLabel.textContent = `${totalFlagged} işaretli (flagged) soru`;
 
-    // Render 15 test cards
     testsGrid.innerHTML = "";
     allTests.forEach((test) => {
       let cCount = 0;
@@ -220,7 +211,6 @@
     });
   }
 
-  // Start a specific test or custom session
   function startSession({ key, title, subtitle, questions, resetPosition = false }) {
     if (!questions || questions.length === 0) {
       alert("Bu kategoride henüz soru bulunmuyor.");
@@ -287,7 +277,6 @@
     timerValue.textContent = `${prefix}${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   }
 
-  // Render active question, options, feedback banner, and right-side question grid
   function renderCurrentQuestion() {
     if (!activeSession) return;
     const { questions, currentIndex, key } = activeSession;
@@ -295,7 +284,6 @@
     state.lastIndex[key] = currentIndex;
     saveState();
 
-    // Update top live stats for this session
     let cCount = 0;
     let wCount = 0;
     questions.forEach((item) => {
@@ -309,9 +297,10 @@
     liveWrong.textContent = `✗ ${wCount}`;
     livePct.textContent = `%${pct}`;
 
-    // Subheader info
-    qCounterBadge.textContent = `${currentIndex + 1} / ${questions.length}`;
-    qGlobalId.textContent = `Soru #${q.id} (PDF ${q.pdf})`;
+    const counterStr = `${currentIndex + 1} / ${questions.length}`;
+    qCounterBadge.textContent = `Soru ${counterStr}`;
+    if (footerCounterText) footerCounterText.textContent = counterStr;
+    qGlobalId.textContent = `#${q.id} (PDF ${q.pdf})`;
 
     const reqCount = q.answer.length;
     if (reqCount > 1) {
@@ -328,15 +317,12 @@
     btnFlag.classList.toggle("active", isFlagged);
     btnFlag.innerHTML = isFlagged ? "🚩 Flagged" : "🏴 Flag";
 
-    // Question stem
     questionStem.textContent = q.question;
 
-    // Selected options for this question
     const selected = state.answers[q.id] || [];
     const isRevealed = !!state.revealed[q.id];
     const finishedSelecting = selected.length >= reqCount || isRevealed || (reqCount === 1 && selected.length > 0);
 
-    // Render options
     optionsList.innerHTML = "";
     q.options.forEach((opt) => {
       const isSelected = selected.includes(opt.key);
@@ -377,7 +363,6 @@
       optionsList.appendChild(item);
     });
 
-    // Render feedback banner below options
     const status = getQuestionStatus(q);
     if (status === "unanswered") {
       feedbackBox.className = "feedback-box hidden";
@@ -403,7 +388,6 @@
       `;
     }
 
-    // Footer buttons
     btnPrev.disabled = currentIndex === 0;
     btnNext.disabled = currentIndex === questions.length - 1;
 
@@ -571,7 +555,6 @@
     }
   });
 
-  // Special mode buttons on dashboard
   document.getElementById("btnRandomExam").addEventListener("click", () => {
     const allQs = Object.values(questionById);
     const shuffled = [...allQs].sort(() => Math.random() - 0.5).slice(0, 50);
@@ -614,7 +597,6 @@
     }
   });
 
-  // Exam controls
   btnFlag.addEventListener("click", () => {
     if (!activeSession) return;
     const q = activeSession.questions[activeSession.currentIndex];
@@ -659,7 +641,6 @@
 
   btnFinishExam.addEventListener("click", showResultsModal);
 
-  // Filter chips in navigator
   document.querySelectorAll(".filter-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
       if (!activeSession) return;
@@ -670,7 +651,6 @@
     });
   });
 
-  // Modal actions
   document.getElementById("btnCloseModal").addEventListener("click", () => {
     resultsModal.classList.add("hidden");
   });
@@ -698,7 +678,6 @@
     });
   });
 
-  // Keyboard navigation
   window.addEventListener("keydown", (e) => {
     if (!activeSession || !resultsModal.classList.contains("hidden")) return;
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
@@ -750,6 +729,5 @@
     }
   });
 
-  // Initialize
   renderDashboard();
 })();
